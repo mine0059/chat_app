@@ -1,66 +1,65 @@
+import 'package:chat_app/wrapper_state/auth_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'auth/screen/signin_screen.dart';
+import 'chat/provider/provider.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(
+      const ProviderScope(
+          child: MyApp(),
+      ),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
+  @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // watching the authStateProvider to firebase auth changes
+    final authState = ref.watch(authStateProvider);
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      debugShowCheckedModeBanner: false,
+      home: authState.when(
+          data: (user) {
+           if (user != null) {
+             return AuthenticationWrapper();
+           } else {
+             return UserLoginScreen();
+           }
+          },
+          error: (error, _) => Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text("Error: $error"),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                      onPressed: () => ref.invalidate(authStateProvider),
+                      child: Text("Retry"),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+          ),
+          loading: () => Scaffold(body: Center(child: CircularProgressIndicator(),),)
       ),
     );
   }
