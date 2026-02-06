@@ -31,7 +31,7 @@ void showAppSnackbar({
         ).show(context);
         break;
     case SnackbarType.error:
-      CherryToast.success(
+      CherryToast.error(
         toastDuration: Duration(milliseconds: 2000),
         height: 70,
         toastPosition: Position.top,

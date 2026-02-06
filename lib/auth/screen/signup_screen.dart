@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/utils.dart';
-import '../../home/app_main_screen.dart';
+import '../../chat/screen/app_main_screen.dart';
 import '../../core/services/route.dart';
+import '../../core/widgets/custom_button.dart';
 
 class SignupScreen extends ConsumerWidget {
   const SignupScreen({super.key});
@@ -106,9 +107,13 @@ class SignupScreen extends ConsumerWidget {
                       ),
                     ),
                     SizedBox(height: 15),
-                    // Formstate.isLoading
-                    //   ? Center(child: CircularProgressIndicator())
-                    //   : MyButton()
+                    formstate.isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : CustomFilledButton(
+                        label: 'Register',
+                        isFullWidth: true,
+                        onPressed: () {}
+                    ),
                     SizedBox(height: 20),
                     Row(
                       children: [
