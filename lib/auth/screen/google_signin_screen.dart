@@ -1,4 +1,5 @@
-import 'package:chat_app/home/app_main_screen.dart';
+import 'package:chat_app/chat/screen/app_main_screen.dart';
+import 'package:chat_app/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/utils/utils.dart';
@@ -48,30 +49,39 @@ class _GoogleSigninScreenState extends State<GoogleSigninScreen> {
 
   @override
   Widget build(BuildContext context) {
-          return SizedBox(
-            width: double.maxFinite,
-            child: ElevatedButton(
-              onPressed: _signInWithGoogle,
-              style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: Colors.grey,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  )
-              ),
-              child: _isLoading ? const CircularProgressIndicator() : Text(
-                'Sign in with Google',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          );
+    return CustomFilledButton(
+      isLoading: _isLoading,
+      label: 'Sign up with Google',
+      isFullWidth: true,
+      useGradient: false,
+      onPressed: _signInWithGoogle,
+      backgroundColor: Colors.grey[200],
+      labelColor: Colors.black54,
+    );
+          // return SizedBox(
+          //   width: double.maxFinite,
+          //   child: ElevatedButton(
+          //     onPressed: _signInWithGoogle,
+          //     style: ElevatedButton.styleFrom(
+          //         elevation: 0,
+          //         backgroundColor: Colors.grey,
+          //         padding: EdgeInsets.symmetric(
+          //           horizontal: 20,
+          //           vertical: 12,
+          //         ),
+          //         shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(8),
+          //         )
+          //     ),
+          //     child: _isLoading ? const CircularProgressIndicator() : Text(
+          //       'Sign in with Google',
+          //       style: TextStyle(
+          //         fontSize: 20,
+          //         color: Colors.black,
+          //         fontWeight: FontWeight.w600,
+          //       ),
+          //     ),
+          //   ),
+          // );
   }
 }

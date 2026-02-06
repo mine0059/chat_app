@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:chat_app/home/app_main_screen.dart';
+import 'package:chat_app/chat/screen/app_main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
