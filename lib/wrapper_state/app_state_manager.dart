@@ -3,15 +3,45 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-class AppStateManager extends ChangeNotifier {
+class AppStateManager extends ChangeNotifier with WidgetsBindingObserver {
   AppStateManager() {
+    // Listen to app lifecycle change (resume, pause, etc).
+    WidgetsBinding.instance.addObserver(this);
    //   Initialize session when class is created
    initializeUserSession();
   }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addObserver(this);
+    _setOnlineStatus(false);
+    super.dispose();
+  }
+
+  // handle app lifecycle to update online/offline
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _setOnlineStatus(true);
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        _setOnlineStatus(false);
+        break;
+      default:
+        break;
+    }
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool _isInitialized = false;
+
+  // handle app lifecycle to update online/offline
+
 
   // Initialize user session (runs once per app start)
   Future<void> initializeUserSession() async {
@@ -50,6 +80,24 @@ class AppStateManager extends ChangeNotifier {
     }
   }
 
+  // set user online/offline
+  Future<void> _setOnlineStatus(bool isOnline) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    try {
+      await _firestore.collection("users").doc(user.uid).update({
+        'isOnline': isOnline,
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint("Error updating online status: $e");
+    }
+  }
+
+  // public method to manually set online status
+  Future<void> updateOnlineStatus(bool isOnline) async {
+    await _setOnlineStatus(isOnline);
+  }
 
   //   detect which provider user used (google or email)
   String _getProvider (User user) {
