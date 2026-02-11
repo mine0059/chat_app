@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/utils/chat_id.dart';
+
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,9 +27,24 @@ class ChatService {
         );
   }
 
+  // --------------- MESSAGE REQUEST --------------------
+  Future<void> updateUserOnlineStatus(bool isOnline) async {
+    if(currentUserId.isEmpty) return;
+    try {
+      await _firestore.collection('users')
+          .doc(currentUserId)
+          .update({
+            "isOnline": isOnline,
+            'lastSeen': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      debugPrint('Error during updating Online status: $e');
+    }
+  }
+
   // --------------- ARE USERS FRIENDS --------------------
   Future<bool> areUsersFriends(String userID1, userID2) async {
-    final chatId = _generateChatID(userID1, userID2);
+    final chatId = generateChatID(userID1, userID2);
 
     // only read from firestore if not cached
     final friendship = await _firestore
@@ -117,7 +134,7 @@ class ChatService {
       });
 
       // create friendship
-      final friendshipId = _generateChatID(currentUserId, senderId);
+      final friendshipId = generateChatID(currentUserId, senderId);
       batch.set(_firestore.collection('friendships').doc(friendshipId), {
         'participants': [currentUserId, senderId],
         'createdAt': FieldValue.serverTimestamp(),
@@ -171,11 +188,5 @@ class ChatService {
       debugPrint('Error while rejecting Request: $e');
       return e.toString();
     }
-  }
-
-  // --------------- UTILS --------------------
-  String _generateChatID(String userID1, String userID2) {
-    final ids = [userID1, userID2]..sort();
-    return '${ids[0]}_${ids[1]}';
   }
 }
