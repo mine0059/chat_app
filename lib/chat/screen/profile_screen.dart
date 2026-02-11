@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chat_app/chat/provider/provider.dart';
 import 'package:chat_app/chat/provider/user_profile_provider.dart';
 import 'package:chat_app/core/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +14,7 @@ import '../../auth/service/google_service.dart';
 import '../../core/extensions/format_to_mb.dart';
 import '../../core/services/image_upload_service.dart';
 import '../../core/widgets/custom_button.dart';
+import '../provider/user_list_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -192,6 +194,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           await GoogleService.signOut();
                           // invalidate all providers
                           ref.invalidate(profileProvider);
+                          ref.invalidate(userListNotifierProvider);
+                          ref.invalidate(requestsProvider);
+                          ref.invalidate(userProvider);
+                          ref.invalidate(filteredUsersProvider);
+                          ref.invalidate(searchQueryProvider);
                           if (context.mounted) {
                             Navigator.pushReplacement(
                                 context,
