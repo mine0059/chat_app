@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum IconPosition { left, right }
+
 /// Custom Filled Button with Gradient Support
 class CustomFilledButton extends StatelessWidget {
   const CustomFilledButton({
@@ -18,6 +20,7 @@ class CustomFilledButton extends StatelessWidget {
     this.isEnabled = true,
     this.isLoading = false,
     this.icon,
+    this.iconPosition = IconPosition.left,
     this.backgroundColor,
     this.labelColor,
   });
@@ -35,6 +38,7 @@ class CustomFilledButton extends StatelessWidget {
   final bool isEnabled;
   final bool isLoading;
   final Widget? icon;
+  final IconPosition iconPosition;
   final Color? backgroundColor;
   final Color? labelColor;
 
@@ -58,7 +62,7 @@ class CustomFilledButton extends StatelessWidget {
         onPressed: (isEnabled && !isLoading) ? onPressed : null,
         style: FilledButton.styleFrom(
           backgroundColor: backgroundColor ?? Colors.blueAccent,
-          disabledBackgroundColor: Colors.blueAccent.withOpacity(0.5),
+          disabledBackgroundColor: Colors.grey,
           disabledForegroundColor: Colors.white.withOpacity(0.5),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
