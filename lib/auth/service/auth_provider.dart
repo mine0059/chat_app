@@ -32,7 +32,7 @@ class AuthFormNotifier extends Notifier<AuthFormState> {
 
   void updatePassword(String password) {
     String? passwordError;
-    if (password.isNotEmpty && password.length > 6) {
+    if (password.isNotEmpty && password.length < 6) {
       passwordError = "Password must be at least 6 characters";
     }
 
