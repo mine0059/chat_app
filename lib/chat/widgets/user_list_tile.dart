@@ -1,9 +1,14 @@
 import 'package:chat_app/chat/model/user_list_model.dart';
 import 'package:chat_app/chat/model/user_model.dart';
 import 'package:chat_app/chat/provider/user_list_provider.dart';
+import 'package:chat_app/chat/provider/user_status_provider.dart';
+import 'package:chat_app/chat/screen/chat/chat_screen.dart';
+import 'package:chat_app/core/services/route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/utils/chat_id.dart';
 import '../../core/widgets/custom_button.dart';
 
 class UserListTile extends ConsumerWidget {
@@ -41,12 +46,22 @@ class UserListTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                    "Offline",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
+                Consumer(
+                    builder: (context, ref, _) {
+                      final statusAsync = ref.watch(userStatusProvider(user.uid));
+                      return statusAsync.when(
+                          data: (isOnline) => Text(
+                            isOnline? "Online" : "Offline",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: isOnline ? Colors.green : Colors.grey
+                            ),
+                          ),
+                          error: (_, __) => Text(user.email),
+                          loading: () => Text(user.email),
+                      );
+                    }
                 ),
                 const SizedBox(height: 8),
                 _buildTrailingWidget(context, ref, userListState, userListNotifer)
@@ -92,9 +107,7 @@ class UserListTile extends ConsumerWidget {
                       height: 40,
                       icon: Icon(Icons.message),
                       label: 'Message',
-                      onPressed: () {
-                        //Todo: (Navigate to message page)
-                      }
+                      onPressed: () => _navigateToChat(context),
                   ),
                 )
               ],
@@ -131,5 +144,12 @@ class UserListTile extends ConsumerWidget {
         },
       error: (e, st) => const Icon(Icons.error, size: 18),
     );
+  }
+
+  // Navigate to chat screen when message button is clicked
+  Future<void> _navigateToChat(BuildContext context) async {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final chatId = generateChatID(currentUserId, user.uid);
+    NavigationHelper.push(context, ChatScreen(chatId: chatId, otherUser: user));
   }
 }
