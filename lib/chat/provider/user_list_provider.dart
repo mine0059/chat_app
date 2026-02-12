@@ -179,6 +179,7 @@ class UserListNotifier extends AsyncNotifier<UserListTileState> {
       );
       // refresh providers
       ref.invalidate(requestsProvider);
+      ref.invalidate(chatsProvider);
     }
 
     return result;

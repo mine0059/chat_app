@@ -11,6 +11,14 @@ class UserListScreen extends ConsumerStatefulWidget {
 }
 
 class _UserListScreenState extends ConsumerState<UserListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // force refresh when screen is first loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(userProvider);
+    });
+  }
   Future<void> onRefresh() async {
     // clear friendship cache before refreshing
     ref.invalidate(userProvider);
