@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chat_app/chat/model/chat_model.dart';
 import 'package:chat_app/chat/model/message_request_model.dart';
 import 'package:chat_app/chat/model/user_model.dart';
 import 'package:chat_app/chat/service/chat_service.dart';
@@ -107,6 +108,39 @@ final autoRefreshProvider = Provider<void>((ref) {
     });
   });
 });
+
+// --------------- CHAT --------------------
+class ChatsNotifier extends AsyncNotifier<List<ChatModel>> {
+  @override
+  FutureOr<List<ChatModel>> build() {
+    final service = ref.watch(chatServiceProvider);
+    // listen to stream and update the state
+    final subscription = service.getUserChats().listen(
+        (chats) {
+          state = AsyncData(chats);
+        },
+        onError: (error, stackTrace) {
+          state = AsyncError(error, stackTrace);
+        }
+    );
+
+    ref.onDispose(() {
+      subscription.cancel();
+    });
+
+    // Return initial empty list (will be updated by stream)
+    return [];
+  }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+  }
+
+}
+
+final chatsProvider = AsyncNotifierProvider<ChatsNotifier, List<ChatModel>>(
+  ChatsNotifier.new,
+);
 
 // --------------- SEARCH --------------------
 final searchQueryProvider = StateProvider<String>((ref) => '');
